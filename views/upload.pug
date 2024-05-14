@@ -1,0 +1,9 @@
+doctype html
+html
+  head
+    title Upload Catalog
+  body
+    h1 Upload Catalog
+    form(action="/catalog/upload", method="post", enctype="multipart/form-data")
+      input(type="file", name="catalog")
+      button(type="submit") Upload

@@ -1,0 +1,176 @@
+doctype html
+html
+  head
+    title Lookup
+    link(rel="stylesheet", href="/stylesheets/style.css")
+    style.
+      body {
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f5f5;
+        color: #333;
+        text-align: center;
+      }
+      .container {
+        max-width: 600px;
+        margin: 50px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      label {
+        font-weight: bold;
+        display: block;
+        margin: 10px 0 5px;
+      }
+      input, select, button {
+        width: calc(100% - 20px);
+        max-width: 300px;
+        padding: 10px;
+        margin: 5px auto;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        display: block;
+      }
+      button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      .label-container {
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        background: #fff;
+        display: block;
+        text-align: center;
+      }
+      .label-container p {
+        margin: 5px 0;
+        font-size: 22px;
+        font-weight: bold;
+      }
+      .label-container canvas {
+        margin-top: 10px;
+      }
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        .label-container#printableArea, .label-container#printableArea * {
+          visibility: visible;
+        }
+        .label-container#printableArea {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: var(--label-width);
+          height: var(--label-height);
+          border: none;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          padding: 0;
+          margin: 0;
+        }
+        .label-container#printableArea p {
+          font-size: var(--font-size);
+          margin: 0;
+        }
+        .label-container#printableArea canvas {
+          margin-top: 5px;
+          height: var(--canvas-height);
+        }
+        @page {
+          size: var(--label-width) var(--label-height);
+          margin: 0;
+        }
+        html, body {
+          width: var(--label-width);
+          height: var(--label-height);
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+        }
+      }
+    script(src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js")
+    script.
+      function generateBarcode(upc) {
+        JsBarcode("#barcode", upc, {
+          format: "CODE128",
+          displayValue: true,
+          fontSize: 20,
+          height: 75,
+        });
+      }
+
+      function printLabel() {
+        const labelSize = document.getElementById('labelSize').value;
+        if (labelSize === '2.4x1.1') {
+          document.documentElement.style.setProperty('--label-width', '2.4in');
+          document.documentElement.style.setProperty('--label-height', '1.1in');
+          document.documentElement.style.setProperty('--font-size', '12px');
+          document.documentElement.style.setProperty('--canvas-height', '30px');
+        } else {
+          document.documentElement.style.setProperty('--label-width', '3.9in');
+          document.documentElement.style.setProperty('--label-height', '2.4in');
+          document.documentElement.style.setProperty('--font-size', '22px');
+          document.documentElement.style.setProperty('--canvas-height', '75px');
+        }
+        window.print();
+      }
+  body
+    .container
+      h1 Lookup
+      form(action="/catalog/lookup", method="post")
+        label(for="style") Style:
+        input(type="text", name="style", id="style")
+        br
+        label(for="size") Size:
+        input(type="text", name="size", id="size")
+        br
+        button(type="submit") Lookup
+        label(for="labelSize") Label Size:
+        select(name="labelSize", id="labelSize")
+          option(value="2.4x3.9") 2.4 x 3.9
+          option(value="2.4x1.1") 2.4 x 1.1
+      if promptColor
+        form(action="/catalog/lookup", method="post")
+          input(type="hidden", name="style", value=style)
+          input(type="hidden", name="size", value=size)
+          input(type="hidden", name="labelSize", value=labelSize)
+          label(for="clr_desc") Select Color:
+          select(name="clr_desc", id="clr_desc")
+            each color in colors
+              option(value=color) #{color}
+          br
+          button(type="submit") Lookup
+      else if promptStyle
+        form(action="/catalog/choose-style", method="post")
+          input(type="hidden", name="style", value=style)
+          input(type="hidden", name="clrDesc", value=clrDesc)
+          input(type="hidden", name="labelSize", value=labelSize)
+          label(for="size") Select Size:
+          select(name="size", id="size")
+            each size in styles
+              option(value=size) #{size}
+          br
+          button(type="submit") Choose
+      if style_col_size && upc
+        .label-container
+          p Style: #{style_col_size}
+          p UPC: #{upc}
+        .label-container#printableArea
+          p #{style_col_size}
+          canvas#barcode
+          script.
+            generateBarcode("#{upc}");
+        button(type="button", onclick="printLabel()") Print Label
+      if error
+        p #{error}
