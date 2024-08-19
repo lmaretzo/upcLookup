@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
 const fs = require('fs');
 const app = express();
-const PORT = 3000;
+const port = process.env.PORT || 3000;
 
 // Ensure the database directory exists
 const dbPath = './database/catalog.db';
@@ -47,6 +47,6 @@ const catalogRouter = require('./routes/catalog');
 app.use('/', indexRouter);
 app.use('/catalog', catalogRouter);
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Server is running at http://0.0.0.0:${port}`);
+  });

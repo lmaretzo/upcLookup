@@ -102,7 +102,7 @@ router.post('/lookup', (req, res) => {
                         res.status(500).send('Database error');
                     } else if (rows.length === 1) {
                         console.log('Single style and size found:', rows[0]);
-                        res.render('lookup', { style_col_size: rows[0].style_col_size, upc: rows[0].upc });
+                        res.render('lookup', { style: rows[0].style, clrDesc: finalClrDesc, size: rows[0].size, style_col_size: rows[0].style_col_size, upc: rows[0].upc });
                     } else {
                         console.log('Multiple sizes found for style:', style, 'and color:', finalClrDesc);
                         res.render('lookup', { promptStyle: true, styles: rows.map(row => row.size), style, clrDesc: finalClrDesc });
@@ -130,7 +130,7 @@ router.post('/lookup', (req, res) => {
                     if (rows.length > 0) {
                         if (rows.length === 1) {
                             console.log('Single match found:', rows[0]);
-                            res.render('lookup', { style_col_size: rows[0].style_col_size, upc: rows[0].upc });
+                            res.render('lookup', { style: rows[0].style, clrDesc: finalClrDesc, size: rows[0].size, style_col_size: rows[0].style_col_size, upc: rows[0].upc });
                         } else {
                             console.log('Multiple sizes found, prompting user to choose:', rows);
                             res.render('lookup', { promptStyle: true, styles: rows.map(row => row.size), style, clrDesc: finalClrDesc });
@@ -148,7 +148,7 @@ router.post('/lookup', (req, res) => {
             if (rows.length > 0) {
                 if (rows.length === 1) {
                     console.log('Single match found:', rows[0]);
-                    res.render('lookup', { style_col_size: rows[0].style_col_size, upc: rows[0].upc });
+                    res.render('lookup', { style: rows[0].style, clrDesc: clrDesc, size: rows[0].size, style_col_size: rows[0].style_col_size, upc: rows[0].upc });
                 } else if (standardizedSize) {
                     // Only prompt for size if size was not provided initially
                     console.log('Multiple sizes found, prompting user to choose:', rows);
@@ -177,7 +177,7 @@ router.post('/choose-style', (req, res) => {
             res.status(500).send('Database error');
         } else if (row) {
             console.log('Chosen style found:', row);
-            res.render('lookup', { style_col_size: row.style_col_size, upc: row.upc });
+            res.render('lookup', { style: row.style, clrDesc: clrDesc, size: size, style_col_size: row.style_col_size, upc: row.upc });
         } else {
             console.log('No match found for chosen style:', { style, size, clrDesc });
             res.render('lookup', { error: 'No match found for the chosen style' });

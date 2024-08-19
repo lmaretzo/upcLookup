@@ -41,22 +41,45 @@ html
       button:hover {
         background-color: #0056b3;
       }
-      .label-container {
+      .style-info-container {
         margin: 20px auto;
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 10px;
-        background: #fff;
+        padding: 10px;
+        background: none; /* Remove background */
         display: block;
         text-align: center;
       }
+      .style-info-container p {
+        margin: 5px 0;
+        font-size: 16px;
+        font-weight: bold;
+      }
+      .label-container {
+        margin: 20px auto;
+        padding: 10px; /* Adjust padding to make the container smaller */
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        background: #fff;
+        display: none; /* Hide the label container */
+        text-align: left;
+      }
       .label-container p {
         margin: 5px 0;
-        font-size: 22px;
+        font-size: var(--font-size);
         font-weight: bold;
       }
       .label-container canvas {
-        margin-top: 10px;
+        margin-top: 0px; /* Remove top margin to reduce white space */
+        width: 100%;
+        display: block;
+      }
+      .label-top-row {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+      }
+      .label-top-left {
+        display: flex;
+        flex-direction: column;
       }
       @media print {
         body * {
@@ -74,18 +97,25 @@ html
           border: none;
           display: flex;
           flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          padding: 0;
+          justify-content: flex-start;
+          align-items: flex-start;
+          padding: var(--label-padding); /* Adjust padding here */
           margin: 0;
+        }
+        .label-container#printableArea .label-top-row {
+          padding: var(--label-top-padding) var(--label-side-padding);
+          width: 100%;
+          box-sizing: border-box;
         }
         .label-container#printableArea p {
           font-size: var(--font-size);
           margin: 0;
         }
         .label-container#printableArea canvas {
-          margin-top: 5px;
-          height: var(--canvas-height);
+          width: 100%; /* Ensure barcode width is 100% */
+          display: block; /* Ensure canvas is a block element */
+          margin-left: auto; /* Center the barcode horizontally */
+          margin-right: auto; /* Center the barcode horizontally */
         }
         @page {
           size: var(--label-width) var(--label-height);
@@ -102,11 +132,21 @@ html
     script(src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js")
     script.
       function generateBarcode(upc) {
-        JsBarcode("#barcode", upc, {
+        const canvas = document.getElementById('barcode');
+        const scale = 2; // Set the scale factor to improve resolution
+
+        // Set the actual size of the canvas
+        canvas.width = canvas.clientWidth * scale;
+        canvas.height = canvas.clientHeight * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(scale, scale);
+
+        JsBarcode(canvas, upc, {
           format: "CODE128",
           displayValue: true,
-          fontSize: 20,
-          height: 75,
+          fontSize: parseInt(getComputedStyle(document.documentElement).getPropertyValue('--barcode-font-size')),
+          height: parseInt(getComputedStyle(document.documentElement).getPropertyValue('--barcode-height')),
+          width: 2
         });
       }
 
@@ -115,31 +155,30 @@ html
         if (labelSize === '2.4x1.1') {
           document.documentElement.style.setProperty('--label-width', '2.4in');
           document.documentElement.style.setProperty('--label-height', '1.1in');
-          document.documentElement.style.setProperty('--font-size', '12px');
-          document.documentElement.style.setProperty('--canvas-height', '30px');
+          document.documentElement.style.setProperty('--font-size', '12.5px');
+          document.documentElement.style.setProperty('--barcode-height', '25'); /* Adjust barcode height here */
+          document.documentElement.style.setProperty('--barcode-font-size', '10px'); /* Adjust barcode font size here */
+          document.documentElement.style.setProperty('--label-padding', '0px'); /* Adjust padding here */
+          document.documentElement.style.setProperty('--label-top-padding', '10px'); /* Adjust top padding here */
+          document.documentElement.style.setProperty('--label-side-padding', '10px'); /* Adjust side padding here */
         } else {
           document.documentElement.style.setProperty('--label-width', '3.9in');
           document.documentElement.style.setProperty('--label-height', '2.4in');
           document.documentElement.style.setProperty('--font-size', '22px');
-          document.documentElement.style.setProperty('--canvas-height', '75px');
+          document.documentElement.style.setProperty('--barcode-height', '40'); /* Adjust barcode height here */
+          document.documentElement.style.setProperty('--barcode-font-size', '12px'); /* Adjust barcode font size here */
+          document.documentElement.style.setProperty('--label-padding', '0px'); /* Adjust padding here */
+          document.documentElement.style.setProperty('--label-top-padding', '5px'); /* Adjust top padding here */
+          document.documentElement.style.setProperty('--label-side-padding', '17px'); /* Adjust side padding here */
         }
+        document.querySelector('.label-container').style.display = 'block'; /* Show the label container */
+        generateBarcode(document.getElementById('barcode').dataset.upc);
         window.print();
+        document.querySelector('.label-container').style.display = 'none'; /* Hide the label container after printing */
       }
   body
     .container
       h1 Lookup
-      form(action="/catalog/lookup", method="post")
-        label(for="style") Style:
-        input(type="text", name="style", id="style")
-        br
-        label(for="size") Size:
-        input(type="text", name="size", id="size")
-        br
-        button(type="submit") Lookup
-        label(for="labelSize") Label Size:
-        select(name="labelSize", id="labelSize")
-          option(value="2.4x3.9") 2.4 x 3.9
-          option(value="2.4x1.1") 2.4 x 1.1
       if promptColor
         form(action="/catalog/lookup", method="post")
           input(type="hidden", name="style", value=style)
@@ -162,15 +201,35 @@ html
               option(value=size) #{size}
           br
           button(type="submit") Choose
+      else
+        form(action="/catalog/lookup", method="post")
+          label(for="style") Style:
+          input(type="text", name="style", id="style")
+          br
+          label(for="size") Size:
+          input(type="text", name="size", id="size")
+          br
+          button(type="submit") Lookup
       if style_col_size && upc
-        .label-container
-          p Style: #{style_col_size}
+        .style-info-container
+          p Style Info: #{style_col_size}
           p UPC: #{upc}
+      if style && clrDesc && size && upc
         .label-container#printableArea
-          p #{style_col_size}
-          canvas#barcode
+          .label-top-row
+            .label-top-left
+              p Style: #{style}
+              p Color: #{clrDesc}
+            p Size: #{size}
+          canvas#barcode(data-upc=upc)
           script.
             generateBarcode("#{upc}");
         button(type="button", onclick="printLabel()") Print Label
-      if error
-        p #{error}
+        form(action="/catalog/lookup", method="post")
+          label(for="labelSize") Label Size:
+          select(name="labelSize", id="labelSize")
+            option(value="2.4x1.1") 2.4 x 1.1
+            option(value="2.4x3.9") 2.4 x 3.9
+          br
+    if error
+      p #{error}
