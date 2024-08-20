@@ -2,8 +2,59 @@ doctype html
 html
   head
     title Upload Catalog
+    link(rel="stylesheet", href="/stylesheets/style.css")
+    style.
+      body {
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f5f5;
+        color: #333;
+        text-align: center;
+      }
+      .container {
+        max-width: 600px;
+        margin: 50px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      form {
+        margin: 20px 0;
+      }
+      input[type="file"], button {
+        width: calc(100% - 20px);
+        max-width: 300px;
+        padding: 10px;
+        margin: 10px auto;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        display: block;
+      }
+      button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      .instruction {
+        font-size: 16px;
+        text-align: left;
+        margin-top: 20px;
+      }
   body
-    h1 Upload Catalog
-    form(action="/catalog/upload", method="post", enctype="multipart/form-data")
-      input(type="file", name="catalog")
-      button(type="submit") Upload
+    .container
+      h1 Upload Catalog
+      form(action="/catalog/upload", method="post", enctype="multipart/form-data")
+        input(type="file", name="catalog")
+        button(type="submit") Upload
+      .instruction
+        p Make sure the format of the spreadsheet is in the following order:
+        ul
+          li Model Name (Style)
+          li UPC
+          li Color Description
+          li Size
+          li Style-Color-Size Combined
