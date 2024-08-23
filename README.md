@@ -9,6 +9,9 @@ Web application built with Node.js, Express, Pug, and SQLite. It allows users to
 - **Printable Labels**: Generate and print product labels with UPC codes.
 - **Navigation**: Easy navigation between the Home, Upload, and Search pages.
 
+## Prerequisites:
+Before you begin, ensure you have Node.js and npm installed on your system.
+
 
 ## Usage
 Upload a Catalog
