@@ -9,23 +9,6 @@ Web application built with Node.js, Express, Pug, and SQLite. It allows users to
 - **Printable Labels**: Generate and print product labels with UPC codes.
 - **Navigation**: Easy navigation between the Home, Upload, and Search pages.
 
-## Project Structure
-├── app.js                # Main application file
-├── package.json          # Project dependencies and scripts
-├── public/               # Static files (CSS, images)
-│   └── stylesheets/
-│       └── style.css     # Custom styles for the app
-├── routes/
-│   ├── catalog.js        # Catalog-related routes (upload, lookup)
-│   └── index.js          # Home route
-├── views/                # Pug templates
-│   ├── layout.pug        # Common layout template
-│   ├── upload.pug        # Upload page template
-│   ├── lookup.pug        # Lookup/Search page template
-│   └── index.pug         # Home page template
-└── database/
-    └── catalog.db        # SQLite database
-
 
 ## Usage
 Upload a Catalog
