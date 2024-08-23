@@ -1,4 +1,4 @@
-UPC Barcode Manager
+## UPC Barcode Manager
 
 Web application built with Node.js, Express, Pug, and SQLite. It allows users to upload a catalog of products, search for product information, and manage a simple database of product details.
 
